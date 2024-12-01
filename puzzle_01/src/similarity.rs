@@ -1,0 +1,52 @@
+pub fn occurence_similarity(vec_a: & mut Vec<usize>, vec_b: & mut Vec<usize>) -> usize {
+    let mut score = 0;
+    for a in vec_a.iter() {
+        let mut occurences = 0;
+        for b in vec_b.iter() {
+            if a == b {
+                occurences += 1;
+            }
+        }
+        score += a * occurences;
+    }
+    score
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn occurence_similarity_move(mut vec_a: Vec<usize>, mut vec_b: Vec<usize>) -> usize {
+        occurence_similarity(&mut vec_a, &mut vec_b)
+    }
+
+    #[test]
+    fn test_example_1() {
+        let result = occurence_similarity_move(vec![1, 2], vec![2, 4]);
+        assert_eq!(result, 2);
+    }
+
+    #[test]
+    fn test_example_2() {
+        let result = occurence_similarity_move(vec![1, 2, 4, 3], vec![2, 4, 2, 3, 4, 4, 5]);
+        assert_eq!(result, 19);
+    }
+
+    #[test]
+    fn test_empty_1() {
+        let result = occurence_similarity_move(vec![], vec![2, 4]);
+        assert_eq!(result, 0);
+    }
+
+    #[test]
+    fn test_empty_2() {
+        let result = occurence_similarity_move(vec![1, 2], vec![]);
+        assert_eq!(result, 0);
+    }
+
+    #[test]
+    fn test_example_advent() {
+        let result = occurence_similarity_move(vec![3, 4, 2, 1, 3, 3], vec![4, 3, 5, 3, 9, 3]);
+        assert_eq!(result, 31);
+    }
+}
