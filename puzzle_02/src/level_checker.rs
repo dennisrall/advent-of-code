@@ -1,9 +1,8 @@
 pub type LevelItem = isize;
 
-pub fn check_level(level: &Vec<LevelItem>, skip_one: bool) -> bool {
+pub fn check_level(level: &[LevelItem]) -> bool {
     let mut ordering: Option<bool> = Option::None;
     let mut last_item: Option<&LevelItem> = Option::None;
-    let mut skipped_one = false;
 
     for item in level.iter() {
         if ordering.is_none() {
@@ -24,12 +23,7 @@ pub fn check_level(level: &Vec<LevelItem>, skip_one: bool) -> bool {
         }
 
         if !ordered_correctly {
-            if !skip_one || skipped_one {
-                return false;
-            } else {
-                skipped_one = true;
-                continue;
-            }
+            return false;
         }
 
         if item.abs_diff(*last_item.unwrap()) > 3 {
@@ -41,33 +35,51 @@ pub fn check_level(level: &Vec<LevelItem>, skip_one: bool) -> bool {
     true
 }
 
-pub fn check_level_skip(level: &Vec<LevelItem>) -> bool {
-    if check_level(level, true) {
-        return true;
-    }
-    let mut level_copy = level.clone();
-    level_copy.remove(0);
-    if check_level(&level_copy, true) {
-        return true;
-    }
-    level_copy = level.clone();
-    level_copy.remove(1);
-    if check_level(&level_copy, true) {
-        return true;
-    }
-    level_copy = level.clone();
-    level_copy.remove(level_copy.len() - 2);
-    if check_level(&level_copy, true) {
+pub fn check_level_new(level: &[LevelItem]) -> bool {
+    if level.len() <= 1 {
         return true;
     }
 
-    level_copy = level.clone();
-    level_copy.pop();
-    if check_level(&level_copy, true) {
+    let mut ordering = None;
+
+    for window in level.windows(2) {
+        let (prev, curr) = (&window[0], &window[1]);
+
+        if let Some(is_ascending) = ordering {
+            if is_ascending && prev >= curr || !is_ascending && prev <= curr {
+                return false;
+            }
+        } else {
+            ordering = Some(prev < curr);
+        }
+
+        if curr.abs_diff(*prev) > 3 {
+            return false;
+        }
+    }
+
+    true
+}
+
+pub fn check_level_skip(level: &[LevelItem]) -> bool {
+    if level.len() <= 2 {
         return true;
     }
 
-    return false;
+    if check_level(level) {
+        return true;
+    }
+
+    for i in 0..level.len() {
+        let mut modified_level = level.to_vec();
+        modified_level.remove(i);
+
+        if check_level(&modified_level) {
+            return true;
+        }
+    }
+
+    false
 }
 
 #[cfg(test)]
@@ -75,7 +87,7 @@ mod tests {
     use super::*;
 
     fn check_level_move(level: Vec<LevelItem>) -> bool {
-        check_level(&level, false)
+        check_level(&level)
     }
     fn check_level_move_skip(level: Vec<LevelItem>) -> bool {
         check_level_skip(&level)

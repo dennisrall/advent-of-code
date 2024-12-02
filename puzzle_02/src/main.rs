@@ -22,7 +22,7 @@ fn main() -> io::Result<()> {
         })
         .fold((0, 0), |(safe, safe_skip), line_vec| {
             (
-                safe + check_level(&line_vec, false) as usize,
+                safe + check_level(&line_vec) as usize,
                 safe_skip + check_level_skip(&line_vec) as usize,
             )
         });
