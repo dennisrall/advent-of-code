@@ -1,13 +1,13 @@
+use counter::Counter;
+
+
 pub fn occurence_similarity(vec_a: & mut Vec<usize>, vec_b: & mut Vec<usize>) -> usize {
+    let counter_a = vec_a.iter().collect::<Counter<_>>();
+    let counter_b = vec_b.iter().collect::<Counter<_>>();
     let mut score = 0;
-    for a in vec_a.iter() {
-        let mut occurences = 0;
-        for b in vec_b.iter() {
-            if a == b {
-                occurences += 1;
-            }
-        }
-        score += a * occurences;
+    for (num, count_a) in counter_a.iter() {
+        let count_b = counter_b.get(num).unwrap_or(&0);
+        score += *num * count_a * count_b;
     }
     score
 }
