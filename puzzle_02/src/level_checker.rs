@@ -1,63 +1,32 @@
 pub type LevelItem = isize;
 
 pub fn check_level(level: &[LevelItem]) -> bool {
-    let mut ordering: Option<bool> = Option::None;
-    let mut last_item: Option<&LevelItem> = Option::None;
-
-    for item in level.iter() {
-        if ordering.is_none() {
-            if last_item.is_none() {
-                last_item = Some(item);
-                continue;
-            } else {
-                ordering = Some(item < last_item.expect("Checked above"));
-            }
-        }
-
-        let ordered_correctly: bool;
-
-        if ordering.expect("Checked above") {
-            ordered_correctly = item < last_item.unwrap();
-        } else {
-            ordered_correctly = item > last_item.unwrap();
-        }
-
-        if !ordered_correctly {
-            return false;
-        }
-
-        if item.abs_diff(*last_item.unwrap()) > 3 {
-            return false;
-        }
-
-        last_item = Some(item);
-    }
-    true
-}
-
-pub fn check_level_new(level: &[LevelItem]) -> bool {
     if level.len() <= 1 {
         return true;
     }
 
     let mut ordering = None;
+    let mut last_item = level[0];
 
-    for window in level.windows(2) {
-        let (prev, curr) = (&window[0], &window[1]);
-
-        if let Some(is_ascending) = ordering {
-            if is_ascending && prev >= curr || !is_ascending && prev <= curr {
-                return false;
-            }
-        } else {
-            ordering = Some(prev < curr);
+    for item in level[1..].iter() {
+        if ordering.is_none() {
+            ordering = Some(*item < last_item);
         }
 
-        if curr.abs_diff(*prev) > 3 {
+        let ordered_correctly: bool;
+
+        if ordering.expect("Checked above") {
+            ordered_correctly = *item < last_item;
+        } else {
+            ordered_correctly = *item > last_item;
+        }
+
+        if !ordered_correctly || item.abs_diff(last_item) > 3 {
             return false;
         }
-    }
 
+        last_item = *item;
+    }
     true
 }
 
@@ -78,7 +47,6 @@ pub fn check_level_skip(level: &[LevelItem]) -> bool {
             return true;
         }
     }
-
     false
 }
 
