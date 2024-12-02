@@ -1,7 +1,7 @@
 use std::{
+    fmt,
     fs::File,
     io::{BufRead, BufReader},
-    fmt,
 };
 
 use distance::ordered_distance;
@@ -24,7 +24,7 @@ impl fmt::Display for Error {
         match self {
             Error::CouldNotOpenFile => write!(f, "Could not open the file"),
             Error::ParseNumberError(num) => write!(f, "Could not parse the number: {}", num),
-            Error::TooFewNumbersError => write!(f, "Too few numbers in line.")
+            Error::TooFewNumbersError => write!(f, "Too few numbers in line."),
         }
     }
 }
@@ -35,10 +35,18 @@ fn main() -> Result<(), Error> {
     let mut vec_a: Vec<Id> = vec![];
     let mut vec_b: Vec<Id> = vec![];
     for line in reader.lines() {
-        let vec_line = line
-            .map_err(|_| Error::CouldNotOpenFile)?
+        let line_content = line.map_err(|_| Error::CouldNotOpenFile)?.trim().to_owned();
+
+        if line_content.is_empty() {
+            continue;
+        }
+
+        let vec_line = line_content
             .split_whitespace()
-            .map(|v| v.parse::<Id>().map_err(|_| Error::ParseNumberError(v.to_string())))
+            .map(|v| {
+                v.parse::<Id>()
+                    .map_err(|_| Error::ParseNumberError(v.to_string()))
+            })
             .collect::<Result<Vec<Id>, _>>()?;
         vec_a.push(*vec_line.get(0).ok_or(Error::TooFewNumbersError)?);
         vec_b.push(*vec_line.get(1).ok_or(Error::TooFewNumbersError)?);
