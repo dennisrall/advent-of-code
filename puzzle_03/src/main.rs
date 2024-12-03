@@ -1,6 +1,6 @@
 use std::{
     fs::{File, read_to_string},
-    io::{self, BufRead, BufReader, Read},
+    io::{self, BufRead, BufReader},
 };
 
 use parse_mul::{parse_mul, parse_mul_disable};
