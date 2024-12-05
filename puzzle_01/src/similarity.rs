@@ -4,12 +4,9 @@ use counter::Counter;
 pub fn occurence_similarity(vec_a: & mut Vec<usize>, vec_b: & mut Vec<usize>) -> usize {
     let counter_a = vec_a.iter().collect::<Counter<_>>();
     let counter_b = vec_b.iter().collect::<Counter<_>>();
-    let mut score = 0;
-    for (num, count_a) in counter_a.iter() {
-        let count_b = counter_b.get(num).unwrap_or(&0);
-        score += *num * count_a * count_b;
-    }
-    score
+    counter_a.iter()
+        .map(|(num, count_a)| *num * count_a * counter_b.get(num).unwrap_or(&0))
+        .sum()
 }
 
 #[cfg(test)]

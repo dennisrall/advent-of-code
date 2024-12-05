@@ -4,11 +4,7 @@ use std::iter::zip;
 pub fn ordered_distance(vec_a: & mut Vec<usize>, vec_b: & mut Vec<usize>) -> usize {
     vec_a.sort();
     vec_b.sort();
-    let mut sum = 0;
-    for (a, b) in zip(vec_a, vec_b) {
-        sum += a.abs_diff(*b);
-    }
-    sum
+    zip(vec_a, vec_b).map(|(a, b)| a.abs_diff(*b)).sum()
 }
 
 #[cfg(test)]
