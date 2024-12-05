@@ -1,19 +1,18 @@
 use std::{
     fs::File,
-    io::{self, BufRead, BufReader},
+    io::{BufRead, BufReader},
 };
 
 use level_checker::{check_level, check_level_skip, LevelItem};
 
 pub mod level_checker;
 
-fn main() -> io::Result<()> {
-    let reader = BufReader::new(File::open("input.txt")?);
+fn main() {
+    let reader = BufReader::new(File::open("input.txt").unwrap());
 
     let (count_safe, count_safe_skip) = reader
         .lines()
-        .filter_map(|line| line.ok())
-        .map(|line| line.trim().to_owned())
+        .map(|line| line.unwrap().trim().to_owned())
         .filter(|line| !line.is_empty())
         .map(|line| {
             line.split_whitespace()
@@ -29,6 +28,4 @@ fn main() -> io::Result<()> {
 
     println!("Amount of safe reports: {}", count_safe);
     println!("Amount of safe reports with skipping: {}", count_safe_skip);
-
-    Ok(())
 }
