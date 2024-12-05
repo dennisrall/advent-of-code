@@ -2,4 +2,4 @@
 resolver = "2"
 members = [
 	"puzzle_01"
-, "puzzle_02", "puzzle_03"]
+, "puzzle_02", "puzzle_03", "puzzle_04", "puzzle_05"]
