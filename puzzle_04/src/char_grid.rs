@@ -3,10 +3,10 @@ use std::ops::{Index, IndexMut};
 use crate::{direction::Direction, vector::Vector2D};
 
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct CharGrid {
-    rows: usize,
-    cols: usize,
+    pub rows: usize,
+    pub cols: usize,
     grid: Vec<char>,
 }
 
@@ -39,6 +39,15 @@ impl CharGrid {
         }
         let index = self.get_internal_index(index);
         self.grid.get(index)
+    }
+
+    pub fn set(&mut self, index: Vector2D, c: char) -> Option<()> {
+        if index.x >= self.rows || index.y >= self.cols {
+            return None;
+        }
+        let index = self.get_internal_index(index);
+        self.grid[index] = c;
+        Some(())
     }
 
     pub fn iter_indices(&self) -> impl Iterator<Item = Vector2D> + '_ {
@@ -223,5 +232,25 @@ mod tests {
         assert_eq!(grid.cols, 1);
         let result = grid.get_vector_from_direction(&Vector2D{x: 0, y: 0}, &Direction::FORWARD, &4);
         assert_eq!(result, None);
+    }
+
+    #[test]
+    fn test_set_valid() {
+        let input = "abcdef";
+        let mut grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
+
+        assert_eq!(grid.grid, vec!['a', 'b', 'c', 'd', 'e', 'f']);
+        let result = grid.set(Vector2D {x: 0, y:3}, 'e');
+        assert_eq!(result, Some(()));
+        assert_eq!(grid.grid, vec!['a', 'b', 'c', 'e', 'e', 'f']);
+    }
+    #[test]
+    fn test_set_invalid() {
+        let input = "abcdef";
+        let mut grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
+
+        let result = grid.set(Vector2D {x: 1, y:3}, 'e');
+        assert_eq!(result, None);
+        assert_eq!(grid.grid, vec!['a', 'b', 'c', 'd', 'e', 'f']);
     }
 }
