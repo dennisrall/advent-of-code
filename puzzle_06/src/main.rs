@@ -38,36 +38,29 @@ fn find_start(grid: &CharGrid) -> Option<Vector2D> {
         .next()
 }
 
-fn count_positions(grid: &CharGrid) -> Option<usize> {
+fn get_visited_positions(grid: &CharGrid) -> Option<HashSet<Vector2D>> {
     let mut cur_pos = find_start(grid)?;
     let mut direction = get_direction(grid.get(cur_pos)?)?;
-    let mut positions: HashSet<Vector2D> = HashSet::new();
+    let mut positions = HashSet::new();
 
     loop {
         positions.insert(cur_pos);
-        let mut next_pos = cur_pos + direction.get_vector();
+        let next_pos = cur_pos + direction.get_vector();
 
         if next_pos.is_none()
             || next_pos.unwrap().x >= grid.rows
             || next_pos.unwrap().y >= grid.cols
         {
-            break;
+            return Some(positions);
         }
 
         let next_item = grid.get(next_pos.unwrap())?;
         if *next_item == '#' {
             direction = direction_right(&direction);
-            next_pos = cur_pos + direction.get_vector();
-            if next_pos.is_none()
-                || next_pos.unwrap().x >= grid.rows
-                || next_pos.unwrap().y >= grid.cols
-            {
-                break;
-            }
+        } else {
+            cur_pos = next_pos.unwrap();
         }
-        cur_pos = next_pos.unwrap();
     }
-    Some(positions.len())
 }
 
 fn find_barriers(grid: &CharGrid) -> HashSet<Vector2D> {
@@ -76,13 +69,17 @@ fn find_barriers(grid: &CharGrid) -> HashSet<Vector2D> {
         .collect()
 }
 
-fn get_to_check(grid: &CharGrid) -> Option<HashSet<Vector2D>> {
+fn get_to_check(
+    grid: &CharGrid,
+    visited_positions: HashSet<Vector2D>,
+) -> Option<HashSet<Vector2D>> {
     let cur_pos = find_start(grid)?;
     let barriers = find_barriers(grid);
     let x_vals: HashSet<usize> = barriers.iter().map(|v| v.x).collect();
     let y_vals: HashSet<usize> = barriers.iter().map(|v| v.y).collect();
 
-    grid.iter_indices()
+    visited_positions
+        .into_iter()
         .filter(|idx| x_vals.contains(&idx.x) || y_vals.contains(&idx.y))
         .filter(|idx| !barriers.contains(&idx))
         .filter(|idx| idx != &cur_pos)
@@ -116,8 +113,8 @@ fn is_loop(grid: &CharGrid, &barrier: &Vector2D) -> bool {
     }
 }
 
-fn count_loops(grid: &CharGrid) -> usize {
-    get_to_check(grid)
+fn count_loops(grid: &CharGrid, visited_positions: HashSet<Vector2D>) -> usize {
+    get_to_check(grid, visited_positions)
         .unwrap()
         .iter()
         .filter(|idx| is_loop(&grid, *idx))
@@ -127,9 +124,9 @@ fn count_loops(grid: &CharGrid) -> usize {
 fn main() {
     let content = read_to_string("input.txt").unwrap();
     let grid = CharGrid::from_string(&content).unwrap();
-    let count_pos = count_positions(&grid);
-    println!("Count positions: {}", count_pos.unwrap());
-    let count_loops = count_loops(&grid);
+    let visited_positions = get_visited_positions(&grid).unwrap();
+    println!("Count positions: {}", &visited_positions.len());
+    let count_loops = count_loops(&grid, visited_positions);
     println!("Count loops: {}", count_loops);
 }
 
@@ -153,15 +150,15 @@ mod tests {
         )
         .unwrap();
 
-        let result = count_positions(&grid);
+        let result = get_visited_positions(&grid).unwrap();
 
-        assert_eq!(result, Some(41));
+        assert_eq!(result.len(), 41);
     }
     #[test]
     fn test_example_1() {
         let grid = CharGrid::from_string(">..#").unwrap();
-        let result = count_positions(&grid);
-        assert_eq!(result, Some(3));
+        let result = get_visited_positions(&grid).unwrap();
+        assert_eq!(result.len(), 3);
     }
     #[test]
     fn test_example_loop() {
@@ -179,7 +176,7 @@ mod tests {
         )
         .unwrap();
 
-        let result = count_loops(&grid);
+        let result = count_loops(&grid, grid.iter_indices().collect());
 
         assert_eq!(result, 6);
     }
@@ -192,7 +189,7 @@ mod tests {
         )
         .unwrap();
 
-        let result = count_loops(&grid);
+        let result = count_loops(&grid, grid.iter_indices().collect());
 
         assert_eq!(result, 1);
     }
@@ -205,7 +202,7 @@ mod tests {
         )
         .unwrap();
 
-        let result = count_loops(&grid);
+        let result = count_loops(&grid, grid.iter_indices().collect());
 
         assert_eq!(result, 1);
     }
@@ -214,9 +211,9 @@ mod tests {
     fn test_main() {
         let content = read_to_string("input.txt").unwrap();
         let grid = CharGrid::from_string(&content).unwrap();
-        let count_pos = count_positions(&grid);
-        assert_eq!(count_pos, Some(5564));
-        let count_loops = count_loops(&grid);
+        let visited_positions = get_visited_positions(&grid).unwrap();
+        assert_eq!(visited_positions.len(), 5564);
+        let count_loops = count_loops(&grid, visited_positions);
         assert_eq!(count_loops, 1976);
     }
 }
