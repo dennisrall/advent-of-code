@@ -1,6 +1,6 @@
 use crate::direction::Direction;
 use char_grid::CharGrid;
-use std::fs::read_to_string;
+use std::{fs::read_to_string, ops::Add};
 use vector::Vector2D;
 
 mod char_grid;
@@ -30,62 +30,57 @@ fn check_diag(
 ) -> bool {
     let len_s = s.chars().count();
 
-    let start = *idx + opposite.get_vector();
-    if start.is_some() {
-        let chars = grid.get_vector_from_direction(&start.unwrap(), direction, &len_s);
-        if chars.is_some() {
-            if chars.unwrap().iter().collect::<String>() == s {
-                return true;
-            }
-        }
-    }
-    false
+    idx.add(opposite.get_vector())
+        .and_then(|start| grid.get_vector_from_direction(&start, direction, &len_s))
+        .map_or(false, |chars| chars.iter().collect::<String>() == s)
 }
 
 pub fn count_x_shape(s: &str, grid: &CharGrid) -> usize {
     // for strings of size 3
-    let middle = s.chars().nth(1).unwrap();
+    let middle = match s.chars().nth(1) {
+        Some(m) => m,
+        None => return 0,
+    };
 
-    let mut count = 0;
-    for idx in grid.iter_indices() {
-        let c = grid.get(idx);
-        if c.is_none() || *c.unwrap() != middle {
-            continue;
-        }
+    grid.iter_indices()
+        .filter_map(|idx| grid.get(idx).map(|&c| (idx, c)))
+        .filter(|(_, c)| *c == middle)
+        .filter(|(idx, _)| {
+            let diag1 = check_diag(
+                idx,
+                grid,
+                &Direction::UPFORWARD,
+                &Direction::DOWNBACKWARD,
+                s,
+            ) || check_diag(
+                idx,
+                grid,
+                &Direction::DOWNBACKWARD,
+                &Direction::UPFORWARD,
+                s,
+            );
 
-        let diag1 = check_diag(
-            &idx,
-            grid,
-            &Direction::UPFORWARD,
-            &Direction::DOWNBACKWARD,
-            s,
-        ) || check_diag(
-            &idx,
-            grid,
-            &Direction::DOWNBACKWARD,
-            &Direction::UPFORWARD,
-            s,
-        );
-        if diag1 {
+            if !diag1 {
+                return false;
+            }
+
             let diag2 = check_diag(
-                &idx,
+                idx,
                 grid,
                 &Direction::UPBACKWARD,
                 &Direction::DOWNFORWARD,
                 s,
             ) || check_diag(
-                &idx,
+                idx,
                 grid,
                 &Direction::DOWNFORWARD,
                 &Direction::UPBACKWARD,
                 s,
             );
-            if diag2 {
-                count += 1;
-            }
-        }
-    }
-    count
+
+            diag1 && diag2
+        })
+        .count()
 }
 
 fn main() {
@@ -93,7 +88,6 @@ fn main() {
     let grid = CharGrid::from_string(&content).unwrap();
     let count_xmas = count_str("XMAS", &grid);
     println!("Count XMAS: {}", count_xmas);
-
     let count_x_mas = count_x_shape("MAS", &grid);
     println!("Count X-MAS: {}", count_x_mas);
 }
