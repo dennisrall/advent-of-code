@@ -184,7 +184,7 @@ XMAS.S
     #[test]
     fn test_x_mas() {
         let grid = CharGrid::from_string(
-    ".M.S......
+            ".M.S......
 ..A..MSMS.
 .M.S.MAA..
 ..A.ASMSM.
@@ -194,9 +194,21 @@ S.S.S.S.S.
 .A.A.A.A..
 M.M.M.M.M.
 ..........
-").unwrap();
+",
+        )
+        .unwrap();
         let result = count_x_shape("MAS", &grid);
         assert_eq!(result, 9);
     }
 
+    #[test]
+    fn test_main() {
+        let content = read_to_string("input.txt").unwrap();
+        let grid = CharGrid::from_string(&content).unwrap();
+        let count_xmas = count_str("XMAS", &grid);
+        assert_eq!(count_xmas, 2532);
+
+        let count_x_mas = count_x_shape("MAS", &grid);
+        assert_eq!(count_x_mas, 1941);
+    }
 }
