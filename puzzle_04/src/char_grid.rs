@@ -1,7 +1,6 @@
 use std::ops::{Index, IndexMut};
 
-use crate::{direction::Direction, vector::Vector2D};
-
+use crate::{direction::Direction, vector::BoundVector2D};
 
 #[derive(Debug, Default, Clone)]
 pub struct CharGrid {
@@ -29,32 +28,34 @@ impl CharGrid {
         Ok(CharGrid { rows, cols, grid })
     }
 
-    fn get_internal_index(&self, index: Vector2D) -> usize {
+    fn get_internal_index(&self, index: BoundVector2D) -> usize {
         self.cols * index.x + index.y
     }
 
-    pub fn get(&self, index: Vector2D) -> Option<&char> {
-        if index.x >= self.rows || index.y >= self.cols {
-            return None;
-        }
-        let index = self.get_internal_index(index);
-        self.grid.get(index)
+    pub fn get(&self, index: BoundVector2D) -> Option<&char> {
+        let idx = index.bound(self.rows, self.cols)?;
+        self.grid.get(self.get_internal_index(idx))
     }
 
-    pub fn set(&mut self, index: Vector2D, c: char) -> Option<()> {
-        if index.x >= self.rows || index.y >= self.cols {
-            return None;
-        }
-        let index = self.get_internal_index(index);
+    pub fn set(&mut self, index: BoundVector2D, c: char) -> Option<()> {
+        let idx = index.bound(self.rows, self.cols)?;
+        let index = self.get_internal_index(idx);
         self.grid[index] = c;
         Some(())
     }
 
-    pub fn iter_indices(&self) -> impl Iterator<Item = Vector2D> + '_ {
-        (0..self.rows).flat_map(move |x| (0..self.cols).map(move |y| Vector2D { x, y }))
+    pub fn iter_indices(&self) -> impl Iterator<Item = BoundVector2D> + '_ {
+        (0..self.rows).flat_map(move |x| {
+            (0..self.cols).map(move |y| BoundVector2D::new(x, y, self.rows, self.cols).unwrap())
+        })
     }
 
-    pub fn get_vector_from_direction(&self, start: &Vector2D, direction: &Direction, length: &usize) -> Option<Vec<char>> {
+    pub fn get_vector_from_direction(
+        &self,
+        start: &BoundVector2D,
+        direction: &Direction,
+        length: &usize,
+    ) -> Option<Vec<char>> {
         let mut result = vec![];
         let dir = Direction::get_vector(&direction);
         let mut idx = Some(*start);
@@ -66,16 +67,16 @@ impl CharGrid {
     }
 }
 
-impl Index<Vector2D> for CharGrid {
+impl Index<BoundVector2D> for CharGrid {
     type Output = char;
 
-    fn index(&self, index: Vector2D) -> &Self::Output {
+    fn index(&self, index: BoundVector2D) -> &Self::Output {
         self.get(index).unwrap()
     }
 }
 
-impl IndexMut<Vector2D> for CharGrid {
-    fn index_mut(&mut self, index: Vector2D) -> &mut Self::Output {
+impl IndexMut<BoundVector2D> for CharGrid {
+    fn index_mut(&mut self, index: BoundVector2D) -> &mut Self::Output {
         let idx = self.get_internal_index(index);
         &mut self.grid[idx]
     }
@@ -95,13 +96,31 @@ mod tests {
         assert_eq!(grid.grid, vec!['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']);
 
         // Test specific grid values
-        assert_eq!(grid.get(Vector2D { x: 0, y: 0 }), Some(&'a'));
-        assert_eq!(grid.get(Vector2D { x: 1, y: 1 }), Some(&'e'));
-        assert_eq!(grid.get(Vector2D { x: 2, y: 2 }), Some(&'i'));
+        assert_eq!(
+            grid.get(BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap()),
+            Some(&'a')
+        );
+        assert_eq!(
+            grid.get(BoundVector2D::new(1, 1, grid.rows, grid.cols).unwrap()),
+            Some(&'e')
+        );
+        assert_eq!(
+            grid.get(BoundVector2D::new(2, 2, grid.rows, grid.cols).unwrap()),
+            Some(&'i')
+        );
 
-        assert_eq!(grid[Vector2D { x: 0, y: 0 }], 'a');
-        assert_eq!(grid[Vector2D { x: 1, y: 1 }], 'e');
-        assert_eq!(grid[Vector2D { x: 2, y: 2 }], 'i');
+        assert_eq!(
+            grid[BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap()],
+            'a'
+        );
+        assert_eq!(
+            grid[BoundVector2D::new(1, 1, grid.rows, grid.cols).unwrap()],
+            'e'
+        );
+        assert_eq!(
+            grid[BoundVector2D::new(2, 2, grid.rows, grid.cols).unwrap()],
+            'i'
+        );
     }
 
     #[test]
@@ -132,12 +151,27 @@ mod tests {
         assert_eq!(grid.grid, vec!['a', 'b', 'c', 'd', 'e', 'f']);
 
         // Test specific grid values
-        assert_eq!(grid.get(Vector2D { x: 0, y: 0 }), Some(&'a'));
-        assert_eq!(grid.get(Vector2D { x: 0, y: 5 }), Some(&'f'));
-        assert_eq!(grid.get(Vector2D { x: 0, y: 6 }), None); // Out of bounds
+        assert_eq!(
+            grid.get(BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap()),
+            Some(&'a')
+        );
+        assert_eq!(
+            grid.get(BoundVector2D::new(0, 5, grid.rows, grid.cols).unwrap()),
+            Some(&'f')
+        );
+        assert_eq!(
+            grid.get(BoundVector2D::new(0, 6, grid.rows, grid.cols + 1).unwrap()),
+            None
+        ); // Out of bounds
 
-        assert_eq!(grid[Vector2D { x: 0, y: 0 }], 'a');
-        assert_eq!(grid[Vector2D { x: 0, y: 5 }], 'f');
+        assert_eq!(
+            grid[BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap()],
+            'a'
+        );
+        assert_eq!(
+            grid[BoundVector2D::new(0, 5, grid.rows, grid.cols).unwrap()],
+            'f'
+        );
     }
 
     #[test]
@@ -146,7 +180,7 @@ mod tests {
         let input = "abcdef";
         let grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
 
-        grid[Vector2D { x: 0, y: 6 }];
+        grid[BoundVector2D::new(1, 0, grid.rows, grid.cols).unwrap()];
     }
 
     #[test]
@@ -159,12 +193,27 @@ mod tests {
         assert_eq!(grid.grid, vec!['a', 'b', 'c', 'd']);
 
         // Test specific grid values
-        assert_eq!(grid.get(Vector2D { x: 0, y: 0 }), Some(&'a'));
-        assert_eq!(grid.get(Vector2D { x: 3, y: 0 }), Some(&'d'));
-        assert_eq!(grid.get(Vector2D { x: 4, y: 0 }), None); // Out of bounds
+        assert_eq!(
+            grid.get(BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap()),
+            Some(&'a')
+        );
+        assert_eq!(
+            grid.get(BoundVector2D::new(3, 0, grid.rows, grid.cols).unwrap()),
+            Some(&'d')
+        );
+        assert_eq!(
+            grid.get(BoundVector2D::new(4, 0, grid.rows + 1, grid.cols).unwrap()),
+            None
+        ); // Out of bounds
 
-        assert_eq!(grid[Vector2D { x: 0, y: 0 }], 'a');
-        assert_eq!(grid[Vector2D { x: 3, y: 0 }], 'd');
+        assert_eq!(
+            grid[BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap()],
+            'a'
+        );
+        assert_eq!(
+            grid[BoundVector2D::new(3, 0, grid.rows, grid.cols).unwrap()],
+            'd'
+        );
     }
 
     #[test]
@@ -173,7 +222,7 @@ mod tests {
         let input = "a\nb\nc\nd";
         let grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
 
-        grid[Vector2D { x: 4, y: 0 }];
+        grid[BoundVector2D::new(4, 0, grid.rows, grid.cols).unwrap()];
     }
 
     #[test]
@@ -196,12 +245,30 @@ mod tests {
 
         let mut i = grid.iter_indices();
 
-        assert_eq!(i.next(), Some(Vector2D { x: 0, y: 0 }));
-        assert_eq!(i.next(), Some(Vector2D { x: 0, y: 1 }));
-        assert_eq!(i.next(), Some(Vector2D { x: 0, y: 2 }));
-        assert_eq!(i.next(), Some(Vector2D { x: 1, y: 0 }));
-        assert_eq!(i.next(), Some(Vector2D { x: 1, y: 1 }));
-        assert_eq!(i.next(), Some(Vector2D { x: 1, y: 2 }));
+        assert_eq!(
+            i.next(),
+            Some(BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap())
+        );
+        assert_eq!(
+            i.next(),
+            Some(BoundVector2D::new(0, 1, grid.rows, grid.cols).unwrap())
+        );
+        assert_eq!(
+            i.next(),
+            Some(BoundVector2D::new(0, 2, grid.rows, grid.cols).unwrap())
+        );
+        assert_eq!(
+            i.next(),
+            Some(BoundVector2D::new(1, 0, grid.rows, grid.cols).unwrap())
+        );
+        assert_eq!(
+            i.next(),
+            Some(BoundVector2D::new(1, 1, grid.rows, grid.cols).unwrap())
+        );
+        assert_eq!(
+            i.next(),
+            Some(BoundVector2D::new(1, 2, grid.rows, grid.cols).unwrap())
+        );
 
         assert_eq!(i.next(), None);
     }
@@ -210,18 +277,24 @@ mod tests {
     fn test_get_vector() {
         let input = "a b\nc d";
         let grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
-        let result = grid.get_vector_from_direction(&Vector2D{x: 0, y: 0}, &Direction::FORWARD, &2);
+        let result = grid.get_vector_from_direction(
+            &BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap(),
+            &Direction::FORWARD,
+            &2,
+        );
         assert_eq!(result, Some(vec!['a', ' ']));
-
     }
 
     #[test]
     fn test_get_vector_2() {
         let input = "abcd";
         let grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
-        let result = grid.get_vector_from_direction(&Vector2D{x: 0, y: 0}, &Direction::FORWARD, &4);
+        let result = grid.get_vector_from_direction(
+            &BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap(),
+            &Direction::FORWARD,
+            &4,
+        );
         assert_eq!(result, Some(vec!['a', 'b', 'c', 'd']));
-
     }
 
     #[test]
@@ -230,7 +303,11 @@ mod tests {
         let grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
         assert_eq!(grid.rows, 4);
         assert_eq!(grid.cols, 1);
-        let result = grid.get_vector_from_direction(&Vector2D{x: 0, y: 0}, &Direction::FORWARD, &4);
+        let result = grid.get_vector_from_direction(
+            &BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap(),
+            &Direction::FORWARD,
+            &4,
+        );
         assert_eq!(result, None);
     }
 
@@ -240,7 +317,7 @@ mod tests {
         let mut grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
 
         assert_eq!(grid.grid, vec!['a', 'b', 'c', 'd', 'e', 'f']);
-        let result = grid.set(Vector2D {x: 0, y:3}, 'e');
+        let result = grid.set(BoundVector2D::new(0, 3, grid.rows, grid.cols).unwrap(), 'e');
         assert_eq!(result, Some(()));
         assert_eq!(grid.grid, vec!['a', 'b', 'c', 'e', 'e', 'f']);
     }
@@ -249,7 +326,10 @@ mod tests {
         let input = "abcdef";
         let mut grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
 
-        let result = grid.set(Vector2D {x: 1, y:3}, 'e');
+        let result = grid.set(
+            BoundVector2D::new(1, 3, grid.rows + 1, grid.cols).unwrap(),
+            'e',
+        );
         assert_eq!(result, None);
         assert_eq!(grid.grid, vec!['a', 'b', 'c', 'd', 'e', 'f']);
     }

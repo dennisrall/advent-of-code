@@ -25,25 +25,7 @@ impl OrderingRule {
             _ => true,
         }
     }
-
-    pub fn make_fullfilled_if_not(&self, sequence: &mut Vec<OrderItem>) {
-        if self.is_fullfilled(sequence) {
-            return;
-        }
-        let before = sequence
-            .iter()
-            .position(|&item| item == self.before)
-            .unwrap();
-        let after = sequence
-            .iter()
-            .position(|&item| item == self.after)
-            .unwrap();
-
-        sequence.swap(after, before);
-    }
 }
-
-pub fn check_ordering() {}
 
 #[cfg(test)]
 mod tests {

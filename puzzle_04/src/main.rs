@@ -1,7 +1,7 @@
 use crate::direction::Direction;
 use char_grid::CharGrid;
 use std::{fs::read_to_string, ops::Add};
-use vector::Vector2D;
+use vector::BoundVector2D;
 
 mod char_grid;
 mod direction;
@@ -22,7 +22,7 @@ pub fn count_str(s: &str, grid: &CharGrid) -> usize {
 }
 
 fn check_diag(
-    idx: &Vector2D,
+    idx: &BoundVector2D,
     grid: &CharGrid,
     direction: &Direction,
     opposite: &Direction,

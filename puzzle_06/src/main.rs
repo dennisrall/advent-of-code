@@ -4,7 +4,7 @@ use std::fs::read_to_string;
 
 use puzzle_04::char_grid::CharGrid;
 use puzzle_04::direction::Direction;
-use puzzle_04::vector::Vector2D;
+use puzzle_04::vector::BoundVector2D;
 
 fn direction_right(direction: &Direction) -> Direction {
     match direction {
@@ -26,7 +26,7 @@ fn get_direction(c: &char) -> Option<Direction> {
     }
 }
 
-fn find_start(grid: &CharGrid) -> Option<Vector2D> {
+fn find_start(grid: &CharGrid) -> Option<BoundVector2D> {
     grid.iter_indices()
         .filter(|idx| match grid.get(*idx) {
             Some('v') => true,
@@ -38,7 +38,7 @@ fn find_start(grid: &CharGrid) -> Option<Vector2D> {
         .next()
 }
 
-fn get_visited_positions(grid: &CharGrid) -> Option<HashSet<Vector2D>> {
+fn get_visited_positions(grid: &CharGrid) -> Option<HashSet<BoundVector2D>> {
     let mut cur_pos = find_start(grid)?;
     let mut direction = get_direction(grid.get(cur_pos)?)?;
     let mut positions = HashSet::new();
@@ -47,10 +47,7 @@ fn get_visited_positions(grid: &CharGrid) -> Option<HashSet<Vector2D>> {
         positions.insert(cur_pos);
         let next_pos = cur_pos + direction.get_vector();
 
-        if next_pos.is_none()
-            || next_pos.unwrap().x >= grid.rows
-            || next_pos.unwrap().y >= grid.cols
-        {
+        if next_pos.is_none() {
             return Some(positions);
         }
 
@@ -63,7 +60,7 @@ fn get_visited_positions(grid: &CharGrid) -> Option<HashSet<Vector2D>> {
     }
 }
 
-fn find_barriers(grid: &CharGrid) -> HashSet<Vector2D> {
+fn find_barriers(grid: &CharGrid) -> HashSet<BoundVector2D> {
     grid.iter_indices()
         .filter(|&idx| matches!(grid.get(idx), Some('#')))
         .collect()
@@ -71,8 +68,8 @@ fn find_barriers(grid: &CharGrid) -> HashSet<Vector2D> {
 
 fn get_to_check(
     grid: &CharGrid,
-    visited_positions: HashSet<Vector2D>,
-) -> Option<HashSet<Vector2D>> {
+    visited_positions: HashSet<BoundVector2D>,
+) -> Option<HashSet<BoundVector2D>> {
     let cur_pos = find_start(grid)?;
     let barriers = find_barriers(grid);
     let x_vals: HashSet<usize> = barriers.iter().map(|v| v.x).collect();
@@ -87,7 +84,7 @@ fn get_to_check(
         .collect()
 }
 
-fn is_loop(grid: &CharGrid, &barrier: &Vector2D) -> bool {
+fn is_loop(grid: &CharGrid, &barrier: &BoundVector2D) -> bool {
     let mut cur_pos = find_start(grid).unwrap();
     let mut direction = get_direction(grid.get(cur_pos).unwrap()).unwrap();
     let mut loc_seen = HashSet::new();
@@ -113,7 +110,7 @@ fn is_loop(grid: &CharGrid, &barrier: &Vector2D) -> bool {
     }
 }
 
-fn count_loops(grid: &CharGrid, visited_positions: HashSet<Vector2D>) -> usize {
+fn count_loops(grid: &CharGrid, visited_positions: HashSet<BoundVector2D>) -> usize {
     get_to_check(grid, visited_positions)
         .unwrap()
         .iter()
