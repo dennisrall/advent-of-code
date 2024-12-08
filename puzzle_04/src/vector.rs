@@ -1,6 +1,5 @@
 use std::{
-    cmp::min,
-    ops::{Add, Sub},
+    cmp::min, ops::{Add, Sub}
 };
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
@@ -25,6 +24,10 @@ impl BoundVector2D {
         let x: usize = x_s.try_into().ok()?;
         let y: usize = y_s.try_into().ok()?;
         BoundVector2D::new(x, y, bound_x, bound_y)
+    }
+
+    pub fn to_sized(&self) -> Option<(isize, isize)> {
+        Some((self.x.try_into().ok()?, self.y.try_into().ok()?))
     }
 
     pub fn bound(&self, bound_x: usize, bound_y: usize) -> Option<Self> {
@@ -271,6 +274,16 @@ mod tests {
                 bound_x: 5,
                 bound_y: 5
             })
+        );
+    }
+
+    #[test]
+    fn test_to_sized() {
+        let vec = BoundVector2D::new(1, 1, 5, 5).unwrap();
+        let result = vec.to_sized();
+        assert_eq!(
+            result,
+            Some((1, 1))
         );
     }
 }
