@@ -32,8 +32,7 @@ fn get_harmonic_anti_nodes(vec_a: &BoundVector2D, vec_b: &BoundVector2D) -> Hash
     }
 
     v = *vec_b;
-    let dir_neg = (-1 * dir.0, -1 * dir.1);
-    while let Some(vec) = v + dir_neg {
+    while let Some(vec) = v - dir {
         anti_nodes.insert(vec);
         v = vec;
     }

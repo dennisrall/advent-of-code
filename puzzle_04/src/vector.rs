@@ -1,5 +1,6 @@
 use std::{
-    cmp::min, ops::{Add, Sub}
+    cmp::min,
+    ops::{Add, Sub},
 };
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
@@ -68,6 +69,19 @@ impl Add<(isize, isize)> for BoundVector2D {
         BoundVector2D::new(
             self.x.checked_add_signed(other.0)?,
             self.y.checked_add_signed(other.1)?,
+            self.bound_x,
+            self.bound_y,
+        )
+    }
+}
+
+impl Sub<(isize, isize)> for BoundVector2D {
+    type Output = Option<Self>;
+
+    fn sub(self, other: (isize, isize)) -> Option<Self> {
+        BoundVector2D::new(
+            self.x.checked_add_signed(-1 * other.0)?,
+            self.y.checked_add_signed(-1 * other.1)?,
             self.bound_x,
             self.bound_y,
         )
@@ -211,6 +225,28 @@ mod tests {
     }
 
     #[test]
+    fn test_sub_tuple_within_bounds() {
+        let vec = BoundVector2D::new(1, 1, 5, 5).unwrap();
+        let result = vec - (-2, -3);
+        assert_eq!(
+            result,
+            Some(BoundVector2D {
+                x: 3,
+                y: 4,
+                bound_x: 5,
+                bound_y: 5
+            })
+        );
+    }
+
+    #[test]
+    fn test_sub_tuple_resulting_negative() {
+        let vec = BoundVector2D::new(1, 1, 5, 5).unwrap();
+        let result = vec - (2, 3);
+        assert_eq!(result, None);
+    }
+
+    #[test]
     fn test_bound_within_new_bounds() {
         let vec = BoundVector2D::new(2, 3, 5, 5).unwrap();
         let result = vec.bound(4, 4);
@@ -281,9 +317,6 @@ mod tests {
     fn test_to_sized() {
         let vec = BoundVector2D::new(1, 1, 5, 5).unwrap();
         let result = vec.to_sized();
-        assert_eq!(
-            result,
-            Some((1, 1))
-        );
+        assert_eq!(result, Some((1, 1)));
     }
 }
