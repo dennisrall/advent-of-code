@@ -106,6 +106,13 @@ name = "puzzle_09"
 version = "0.1.0"
 
 [[package]]
+name = "puzzle_10"
+version = "0.1.0"
+dependencies = [
+ "puzzle_04",
+]
+
+[[package]]
 name = "regex"
 version = "1.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
