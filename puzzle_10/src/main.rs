@@ -23,16 +23,12 @@ fn get_trailhead_ends(
     }) {
         HashSet::new()
     } else if next_val == 9 {
-        let mut set = HashSet::new();
-        set.insert(index.unwrap());
-        set
+        HashSet::from([index.unwrap()])
     } else {
-        let idx = index.unwrap();
-        let mut set = get_trailhead_ends(grid, idx + (1, 0), next_val + 1);
-        set.extend(get_trailhead_ends(grid, idx + (0, 1), next_val + 1));
-        set.extend(get_trailhead_ends(grid, idx + (-1, 0), next_val + 1));
-        set.extend(get_trailhead_ends(grid, idx + (0, -1), next_val + 1));
-        set
+        [(1, 0), (0, 1), (-1, 0), (0, -1)]
+            .iter()
+            .flat_map(|&dir| get_trailhead_ends(grid, index.unwrap() + dir, next_val + 1))
+            .collect()
     }
 }
 
@@ -56,11 +52,10 @@ fn get_unique_trailhead_paths(
     } else if next_val == 9 {
         1
     } else {
-        let idx = index.unwrap();
-        get_unique_trailhead_paths(grid, idx + (1, 0), next_val + 1)
-            + get_unique_trailhead_paths(grid, idx + (0, 1), next_val + 1)
-            + get_unique_trailhead_paths(grid, idx + (-1, 0), next_val + 1)
-            + get_unique_trailhead_paths(grid, idx + (0, -1), next_val + 1)
+        [(1, 0), (0, 1), (-1, 0), (0, -1)]
+            .iter()
+            .map(|&dir| get_unique_trailhead_paths(grid, index.unwrap() + dir, next_val + 1))
+            .sum()
     }
 }
 
