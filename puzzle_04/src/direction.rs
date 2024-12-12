@@ -1,39 +1,39 @@
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
 pub enum Direction {
-    UP,
-    DOWN,
-    FORWARD,
-    BACKWARD,
-    UPFORWARD,
-    UPBACKWARD,
-    DOWNFORWARD,
-    DOWNBACKWARD,
+    Up,
+    Down,
+    Forward,
+    Backward,
+    Upforward,
+    Upbackward,
+    Downforward,
+    Downbackward,
 }
 
 impl Direction {
     pub fn get_vector(&self) -> (isize, isize) {
         match self {
-            Self::UP => (-1, 0),
-            Self::UPFORWARD => (-1, 1),
-            Self::FORWARD => (0, 1),
-            Self::DOWNFORWARD => (1, 1),
-            Self::DOWN => (1, 0),
-            Self::DOWNBACKWARD => (1, -1),
-            Self::BACKWARD => (0, -1),
-            Self::UPBACKWARD => (-1, -1),
+            Self::Up => (-1, 0),
+            Self::Upforward => (-1, 1),
+            Self::Forward => (0, 1),
+            Self::Downforward => (1, 1),
+            Self::Down => (1, 0),
+            Self::Downbackward => (1, -1),
+            Self::Backward => (0, -1),
+            Self::Upbackward => (-1, -1),
         }
     }
 
     pub fn variants() -> Vec<Self> {
         vec![
-            Self::UP,
-            Self::UPFORWARD,
-            Self::FORWARD,
-            Self::DOWNFORWARD,
-            Self::DOWN,
-            Self::DOWNBACKWARD,
-            Self::BACKWARD,
-            Self::UPBACKWARD,
+            Self::Up,
+            Self::Upforward,
+            Self::Forward,
+            Self::Downforward,
+            Self::Down,
+            Self::Downbackward,
+            Self::Backward,
+            Self::Upbackward,
         ]
     }
 }

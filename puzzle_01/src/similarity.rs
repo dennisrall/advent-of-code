@@ -1,7 +1,7 @@
 use counter::Counter;
 
 
-pub fn occurence_similarity(vec_a: & mut Vec<usize>, vec_b: & mut Vec<usize>) -> usize {
+pub fn occurence_similarity(vec_a: & mut [usize], vec_b: & mut [usize]) -> usize {
     let counter_a = vec_a.iter().collect::<Counter<_>>();
     let counter_b = vec_b.iter().collect::<Counter<_>>();
     counter_a.iter()

@@ -1,10 +1,9 @@
 use std::{
     fs::File,
     io::{BufRead, BufReader},
-    usize,
 };
 
-fn checksum(blocks: &Vec<Option<usize>>) -> usize {
+fn checksum(blocks: &[Option<usize>]) -> usize {
     blocks
         .iter()
         .enumerate()
@@ -13,7 +12,7 @@ fn checksum(blocks: &Vec<Option<usize>>) -> usize {
         .sum()
 }
 
-fn convert_map_to_blocks(disk_map: &Vec<usize>) -> Vec<Option<usize>> {
+fn convert_map_to_blocks(disk_map: &[usize]) -> Vec<Option<usize>> {
     let mut result = vec![];
     for (i, m) in disk_map.iter().enumerate() {
         let is_empty = i % 2 == 1;
@@ -23,7 +22,7 @@ fn convert_map_to_blocks(disk_map: &Vec<usize>) -> Vec<Option<usize>> {
     result
 }
 
-fn shift_one_to_left(blocks: &mut Vec<Option<usize>>) -> Option<()> {
+fn shift_one_to_left(blocks: &mut [Option<usize>]) -> Option<()> {
     let first_none = blocks.iter().position(|o| o.is_none())?;
     let last_some = blocks.iter().rposition(|o| o.is_some())?;
 
@@ -35,13 +34,13 @@ fn shift_one_to_left(blocks: &mut Vec<Option<usize>>) -> Option<()> {
     Some(())
 }
 
-fn compact(disk_map: &Vec<usize>) -> usize {
+fn compact(disk_map: &[usize]) -> usize {
     let mut blocks = convert_map_to_blocks(disk_map);
-    while let Some(_) = shift_one_to_left(&mut blocks) {}
+    while shift_one_to_left(&mut blocks).is_some() {}
     checksum(&blocks)
 }
 
-fn compact_files(disk_map: &Vec<usize>) -> usize {
+fn compact_files(disk_map: &[usize]) -> usize {
     let mut disk_map_with_idx: Vec<(usize, Option<usize>)> = disk_map
         .iter()
         .enumerate()
@@ -84,13 +83,13 @@ fn compact_files(disk_map: &Vec<usize>) -> usize {
 fn main() {
     let reader = BufReader::new(File::open("input.txt").unwrap());
     let line = reader.lines().next().unwrap().unwrap();
-    let mut disk_map: Vec<usize> = line
+    let disk_map: Vec<usize> = line
         .chars()
         .map(|c| c.to_string().parse::<usize>().unwrap())
         .collect();
     let checksum_compact = compact(&disk_map);
     println!("Checksum compact: {}", checksum_compact);
-    let checksum_compact_files = compact_files(&mut disk_map);
+    let checksum_compact_files = compact_files(&disk_map);
     println!("Checksum compact files: {}", checksum_compact_files);
 }
 
@@ -100,7 +99,7 @@ mod tests {
 
     #[test]
     fn test_checksum_1() {
-        let vec = "009981118882777333644655556600000000000000"
+        let vec: Vec<_> = "009981118882777333644655556600000000000000"
             .chars()
             .map(|c| c.to_string().parse::<usize>().ok())
             .collect();
@@ -110,7 +109,7 @@ mod tests {
 
     #[test]
     fn test_checksum_2() {
-        let vec = "0099811188827773336446555566.............."
+        let vec: Vec<_> = "0099811188827773336446555566.............."
             .chars()
             .map(|c| c.to_string().parse::<usize>().ok())
             .collect();
@@ -120,7 +119,7 @@ mod tests {
 
     #[test]
     fn test_checksum_3() {
-        let vec = "00992111777.44.333....5555.6666.....8888.."
+        let vec: Vec<_> = "00992111777.44.333....5555.6666.....8888.."
             .chars()
             .map(|c| c.to_string().parse::<usize>().ok())
             .collect();
@@ -137,7 +136,7 @@ mod tests {
 
     #[test]
     fn test_checksum_5() {
-        let vec = "..9.1"
+        let vec: Vec<_> = "..9.1"
             .chars()
             .map(|c| c.to_string().parse::<usize>().ok())
             .collect();
@@ -197,22 +196,22 @@ mod tests {
 
     #[test]
     fn test_compact_file_1() {
-        let mut disk_map = vec![1, 3, 2];
-        let res = compact_files(&mut disk_map); // [1, 0, 2, 1]
+        let disk_map = vec![1, 3, 2];
+        let res = compact_files(&disk_map); // [1, 0, 2, 1]
         assert_eq!(res, 3);
     }
 
     #[test]
     fn test_compact_file_2() {
-        let mut disk_map = vec![2, 3, 4, 1, 2];
-        let res = compact_files(&mut disk_map); // [2, 0, 2, 1, 4, 1, 2]
+        let disk_map = vec![2, 3, 4, 1, 2];
+        let res = compact_files(&disk_map); // [2, 0, 2, 1, 4, 1, 2]
         assert_eq!(res, 36);
     }
 
     #[test]
     fn test_compact_file_3() {
-        let mut disk_map = vec![2, 4, 2, 3, 2, 2, 2, 2];
-        let res = compact_files(&mut disk_map); // [2, 0, 2, 0, 2, 0, 2, 3, 2, 2, 2, 2]
+        let disk_map = vec![2, 4, 2, 3, 2, 2, 2, 2];
+        let res = compact_files(&disk_map); // [2, 0, 2, 0, 2, 0, 2, 3, 2, 2, 2, 2]
         assert_eq!(res, 46);
     }
 
@@ -220,13 +219,13 @@ mod tests {
     fn test_main() {
         let reader = BufReader::new(File::open("input.txt").unwrap());
         let line = reader.lines().next().unwrap().unwrap();
-        let mut disk_map: Vec<usize> = line
+        let disk_map: Vec<usize> = line
             .chars()
             .map(|c| c.to_string().parse::<usize>().unwrap())
             .collect();
         let checksum_compact = compact(&disk_map);
         assert_eq!(checksum_compact, 6344673854800);
-        let checksum_compact_files = compact_files(&mut disk_map);
+        let checksum_compact_files = compact_files(&disk_map);
         assert_eq!(checksum_compact_files, 6360363199987);
     }
 }

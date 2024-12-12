@@ -8,7 +8,7 @@ pub struct OrderingRule {
 
 impl OrderingRule {
     pub fn from_str(s: &str) -> Option<OrderingRule> {
-        let mut parts = s.split("|");
+        let mut parts = s.split('|');
 
         let before = parts.next()?.parse().ok()?;
         let after = parts.next()?.parse().ok()?;
@@ -16,7 +16,7 @@ impl OrderingRule {
         Some(OrderingRule { before, after })
     }
 
-    pub fn is_fullfilled(&self, sequence: &Vec<OrderItem>) -> bool {
+    pub fn is_fullfilled(&self, sequence: &[OrderItem]) -> bool {
         match (
             sequence.iter().position(|&item| item == self.before),
             sequence.iter().position(|&item| item == self.after),
@@ -42,42 +42,42 @@ mod tests {
     #[test]
     fn test_is_fullfilled_empty() {
         let rule = OrderingRule::from_str("42|27").unwrap();
-        let result = rule.is_fullfilled(&vec![]);
-        assert_eq!(result, true);
+        let result = rule.is_fullfilled(&[]);
+        assert!(result);
     }
 
     #[test]
     fn test_is_fullfilled_both_not_present() {
         let rule = OrderingRule::from_str("42|27").unwrap();
-        let result = rule.is_fullfilled(&vec![1, 2, 3, 4]);
-        assert_eq!(result, true);
+        let result = rule.is_fullfilled(&[1, 2, 3, 4]);
+        assert!(result);
     }
 
     #[test]
     fn test_is_fullfilled_before_not_present() {
         let rule = OrderingRule::from_str("42|27").unwrap();
-        let result = rule.is_fullfilled(&vec![100, 27, 13]);
-        assert_eq!(result, true);
+        let result = rule.is_fullfilled(&[100, 27, 13]);
+        assert!(result);
     }
 
     #[test]
     fn test_is_fullfilled_after_not_present() {
         let rule = OrderingRule::from_str("42|27").unwrap();
-        let result = rule.is_fullfilled(&vec![10, 42, 13]);
-        assert_eq!(result, true);
+        let result = rule.is_fullfilled(&[10, 42, 13]);
+        assert!(result);
     }
 
     #[test]
     fn test_is_fullfilled_correct() {
         let rule = OrderingRule::from_str("42|27").unwrap();
-        let result = rule.is_fullfilled(&vec![10, 42, 13, 27]);
-        assert_eq!(result, true);
+        let result = rule.is_fullfilled(&[10, 42, 13, 27]);
+        assert!(result);
     }
 
     #[test]
     fn test_is_fullfilled_false() {
         let rule = OrderingRule::from_str("42|27").unwrap();
-        let result = rule.is_fullfilled(&vec![27, 10, 42, 13]);
-        assert_eq!(result, false);
+        let result = rule.is_fullfilled(&[27, 10, 42, 13]);
+        assert!(!result);
     }
 }

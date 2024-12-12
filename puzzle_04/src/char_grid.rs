@@ -57,7 +57,7 @@ impl CharGrid {
         length: &usize,
     ) -> Option<Vec<char>> {
         let mut result = vec![];
-        let dir = Direction::get_vector(&direction);
+        let dir = Direction::get_vector(direction);
         let mut idx = Some(*start);
         for _ in 0..*length {
             result.push(*self.get(idx?)?);
@@ -279,7 +279,7 @@ mod tests {
         let grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
         let result = grid.get_vector_from_direction(
             &BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap(),
-            &Direction::FORWARD,
+            &Direction::Forward,
             &2,
         );
         assert_eq!(result, Some(vec!['a', ' ']));
@@ -291,7 +291,7 @@ mod tests {
         let grid = CharGrid::from_string(input).expect("Failed to create valid CharGrid");
         let result = grid.get_vector_from_direction(
             &BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap(),
-            &Direction::FORWARD,
+            &Direction::Forward,
             &4,
         );
         assert_eq!(result, Some(vec!['a', 'b', 'c', 'd']));
@@ -305,7 +305,7 @@ mod tests {
         assert_eq!(grid.cols, 1);
         let result = grid.get_vector_from_direction(
             &BoundVector2D::new(0, 0, grid.rows, grid.cols).unwrap(),
-            &Direction::FORWARD,
+            &Direction::Forward,
             &4,
         );
         assert_eq!(result, None);

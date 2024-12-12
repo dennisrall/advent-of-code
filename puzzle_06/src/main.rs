@@ -8,34 +8,31 @@ use puzzle_04::vector::BoundVector2D;
 
 fn direction_right(direction: &Direction) -> Direction {
     match direction {
-        Direction::UP => Direction::FORWARD,
-        Direction::FORWARD => Direction::DOWN,
-        Direction::DOWN => Direction::BACKWARD,
-        Direction::BACKWARD => Direction::UP,
+        Direction::Up => Direction::Forward,
+        Direction::Forward => Direction::Down,
+        Direction::Down => Direction::Backward,
+        Direction::Backward => Direction::Up,
         _ => panic!("No valid direction"),
     }
 }
 
 fn get_direction(c: &char) -> Option<Direction> {
     match c {
-        'v' => Some(Direction::DOWN),
-        '>' => Some(Direction::FORWARD),
-        '<' => Some(Direction::BACKWARD),
-        '^' => Some(Direction::UP),
+        'v' => Some(Direction::Down),
+        '>' => Some(Direction::Forward),
+        '<' => Some(Direction::Backward),
+        '^' => Some(Direction::Up),
         _ => None,
     }
 }
 
 fn find_start(grid: &CharGrid) -> Option<BoundVector2D> {
-    grid.iter_indices()
-        .filter(|idx| match grid.get(*idx) {
-            Some('v') => true,
-            Some('>') => true,
-            Some('<') => true,
-            Some('^') => true,
-            _ => false,
-        })
-        .next()
+    grid.iter_indices().find(|idx| {
+        matches!(
+            grid.get(*idx),
+            Some('v') | Some('>') | Some('<') | Some('^')
+        )
+    })
 }
 
 fn get_visited_positions(grid: &CharGrid) -> Option<HashSet<BoundVector2D>> {
@@ -78,9 +75,9 @@ fn get_to_check(
     visited_positions
         .into_iter()
         .filter(|idx| x_vals.contains(&idx.x) || y_vals.contains(&idx.y))
-        .filter(|idx| !barriers.contains(&idx))
+        .filter(|idx| !barriers.contains(idx))
         .filter(|idx| idx != &cur_pos)
-        .map(|idx| Some(idx))
+        .map(Some)
         .collect()
 }
 
@@ -114,7 +111,7 @@ fn count_loops(grid: &CharGrid, visited_positions: HashSet<BoundVector2D>) -> us
     get_to_check(grid, visited_positions)
         .unwrap()
         .iter()
-        .filter(|idx| is_loop(&grid, *idx))
+        .filter(|idx| is_loop(grid, idx))
         .count()
 }
 

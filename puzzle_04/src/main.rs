@@ -14,7 +14,7 @@ pub fn count_str(s: &str, grid: &CharGrid) -> usize {
         .flat_map(|idx| {
             Direction::variants()
                 .iter()
-                .filter_map(|dir| grid.get_vector_from_direction(&idx, &dir, &length))
+                .filter_map(|dir| grid.get_vector_from_direction(&idx, dir, &length))
                 .collect::<Vec<Vec<char>>>()
         })
         .filter(|c| c.iter().collect::<String>() == s)
@@ -49,14 +49,14 @@ pub fn count_x_shape(s: &str, grid: &CharGrid) -> usize {
             let diag1 = check_diag(
                 idx,
                 grid,
-                &Direction::UPFORWARD,
-                &Direction::DOWNBACKWARD,
+                &Direction::Upforward,
+                &Direction::Downbackward,
                 s,
             ) || check_diag(
                 idx,
                 grid,
-                &Direction::DOWNBACKWARD,
-                &Direction::UPFORWARD,
+                &Direction::Downbackward,
+                &Direction::Upforward,
                 s,
             );
 
@@ -67,14 +67,14 @@ pub fn count_x_shape(s: &str, grid: &CharGrid) -> usize {
             let diag2 = check_diag(
                 idx,
                 grid,
-                &Direction::UPBACKWARD,
-                &Direction::DOWNFORWARD,
+                &Direction::Upbackward,
+                &Direction::Downforward,
                 s,
             ) || check_diag(
                 idx,
                 grid,
-                &Direction::DOWNFORWARD,
-                &Direction::UPBACKWARD,
+                &Direction::Downforward,
+                &Direction::Upbackward,
                 s,
             );
 

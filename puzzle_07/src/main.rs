@@ -8,7 +8,7 @@ type CalculationType = isize;
 fn main() {
     let reader = BufReader::new(File::open("input.txt").unwrap());
     let mut score = 0;
-    for line in reader.lines().filter_map(|l| l.ok()) {
+    for line in reader.lines().map_while(Result::ok) {
         let mut parts = line.split(':');
         let result = parts.next().unwrap().parse::<CalculationType>().unwrap();
         let rest = parts.next().unwrap().trim();
@@ -26,7 +26,7 @@ fn main() {
 
     let reader = BufReader::new(File::open("input.txt").unwrap());
     let mut score = 0;
-    for line in reader.lines().filter_map(|l| l.ok()) {
+    for line in reader.lines().map_while(Result::ok) {
         let mut parts = line.split(':');
         let result = parts.next().unwrap().parse::<CalculationType>().unwrap();
         let rest = parts.next().unwrap().trim();
@@ -120,19 +120,19 @@ mod tests {
 
     #[test]
     fn test_example_1() {
-        let result = could_be_calculated(&190, &vec![19], 10);
+        let result = could_be_calculated(&190, &[19], 10);
         assert!(result);
     }
 
     #[test]
     fn test_example_2() {
-        let result = could_be_calculated(&3267, &vec![40, 27], 81);
+        let result = could_be_calculated(&3267, &[40, 27], 81);
         assert!(result);
     }
 
     #[test]
     fn test_example_3() {
-        let result = could_be_calculated(&292, &vec![6, 16, 20], 11);
+        let result = could_be_calculated(&292, &[6, 16, 20], 11);
         assert!(result);
     }
 
@@ -144,13 +144,13 @@ mod tests {
 
     #[test]
     fn test_concat_example_1() {
-        let result = could_be_calculated_with_concat(&156, &vec![6], 15);
+        let result = could_be_calculated_with_concat(&156, &[6], 15);
         assert!(result);
     }
 
     #[test]
     fn test_concat_example_2() {
-        let result = could_be_calculated_with_concat(&7290, &vec![8, 6, 15], 6);
+        let result = could_be_calculated_with_concat(&7290, &[8, 6, 15], 6);
         assert!(result);
     }
 
@@ -158,7 +158,7 @@ mod tests {
     fn test_main() {
         let reader = BufReader::new(File::open("input.txt").unwrap());
         let mut score = 0;
-        for line in reader.lines().filter_map(|l| l.ok()) {
+        for line in reader.lines().map_while(Result::ok) {
             let mut parts = line.split(':');
             let result = parts.next().unwrap().parse::<CalculationType>().unwrap();
             let rest = parts.next().unwrap().trim();
@@ -176,7 +176,7 @@ mod tests {
 
         let reader = BufReader::new(File::open("input.txt").unwrap());
         let mut score = 0;
-        for line in reader.lines().filter_map(|l| l.ok()) {
+        for line in reader.lines().map_while(Result::ok) {
             let mut parts = line.split(':');
             let result = parts.next().unwrap().parse::<CalculationType>().unwrap();
             let rest = parts.next().unwrap().trim();

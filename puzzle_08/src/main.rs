@@ -14,7 +14,7 @@ fn get_anti_nodes(
     let vec_b_s = vec_b.to_sized().unwrap();
     let dir = (vec_a_s.0 - vec_b_s.0, vec_a_s.1 - vec_b_s.1);
     let anti_a = *vec_a + dir;
-    let anti_b = *vec_b + (-1 * dir.0, -1 * dir.1);
+    let anti_b = *vec_b + (-dir.0, -dir.1);
 
     anti_a.into_iter().chain(anti_b)
 }

@@ -11,15 +11,15 @@ mod ordering;
 fn main() {
     let rules: Vec<_> = BufReader::new(File::open("rules.txt").unwrap())
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .filter_map(|l| OrderingRule::from_str(&l))
         .collect();
 
     let sum_middle_items_correct: OrderItem = BufReader::new(File::open("sequences.txt").unwrap())
         .lines()
-        .filter_map(|s| s.ok())
+        .map_while(Result::ok)
         .map(|s| {
-            s.split(",")
+            s.split(',')
                 .filter_map(|v| v.parse::<OrderItem>().ok())
                 .collect::<Vec<_>>()
         })
@@ -31,8 +31,8 @@ fn main() {
     let sum_middle_items_reordered: OrderItem =
         BufReader::new(File::open("sequences.txt").unwrap())
             .lines()
-            .filter_map(|s| s.ok())
-            .map(|s| create_sequence(s))
+            .map_while(Result::ok)
+            .map(create_sequence)
             .filter(|s| rules.iter().any(|r| !r.is_fullfilled(s)))
             .map(|s| order_correctly(&s, &rules))
             .map(|s| *s.get(s.len() / 2).unwrap())
@@ -42,23 +42,21 @@ fn main() {
 }
 
 fn create_sequence(s: String) -> Vec<OrderItem> {
-    s.split(",")
+    s.split(',')
         .filter_map(|v| v.parse::<OrderItem>().ok())
         .collect::<Vec<_>>()
 }
 
-fn order_correctly(seq: &Vec<OrderItem>, rules: &[OrderingRule]) -> Vec<OrderItem> {
+fn order_correctly(seq: &[OrderItem], rules: &[OrderingRule]) -> Vec<OrderItem> {
     let compare_by_rules = |a: &OrderItem, b: &OrderItem| {
         if rules
             .iter()
-            .find(|r| r.before == *a && r.after == *b)
-            .is_some()
+            .any(|r| r.before == *a && r.after == *b)
         {
             Ordering::Less
         } else if rules
             .iter()
-            .find(|r| r.before == *b && r.after == *a)
-            .is_some()
+            .any(|r| r.before == *b && r.after == *a)
         {
             Ordering::Greater
         } else {
@@ -66,7 +64,7 @@ fn order_correctly(seq: &Vec<OrderItem>, rules: &[OrderingRule]) -> Vec<OrderIte
         }
     };
 
-    let mut s = seq.clone();
+    let mut s = seq.to_vec();
 
     s.sort_by(compare_by_rules);
     s
@@ -80,15 +78,15 @@ mod tests {
     fn test_main() {
             let rules: Vec<_> = BufReader::new(File::open("rules.txt").unwrap())
         .lines()
-        .filter_map(|l| l.ok())
+        .map_while(Result::ok)
         .filter_map(|l| OrderingRule::from_str(&l))
         .collect();
 
     let sum_middle_items_correct: OrderItem = BufReader::new(File::open("sequences.txt").unwrap())
         .lines()
-        .filter_map(|s| s.ok())
+        .map_while(Result::ok)
         .map(|s| {
-            s.split(",")
+            s.split(',')
                 .filter_map(|v| v.parse::<OrderItem>().ok())
                 .collect::<Vec<_>>()
         })
@@ -100,8 +98,8 @@ mod tests {
     let sum_middle_items_reordered: OrderItem =
         BufReader::new(File::open("sequences.txt").unwrap())
             .lines()
-            .filter_map(|s| s.ok())
-            .map(|s| create_sequence(s))
+            .map_while(Result::ok)
+            .map(create_sequence)
             .filter(|s| rules.iter().any(|r| !r.is_fullfilled(s)))
             .map(|s| order_correctly(&s, &rules))
             .map(|s| *s.get(s.len() / 2).unwrap())

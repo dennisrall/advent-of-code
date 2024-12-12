@@ -13,13 +13,11 @@ pub fn check_level(level: &[LevelItem]) -> bool {
             ordering = Some(*item < last_item);
         }
 
-        let ordered_correctly: bool;
-
-        if ordering.expect("Checked above") {
-            ordered_correctly = *item < last_item;
+        let ordered_correctly = if ordering.expect("Checked above") {
+            *item < last_item
         } else {
-            ordered_correctly = *item > last_item;
-        }
+            *item > last_item
+        };
 
         if !ordered_correctly || item.abs_diff(last_item) > 3 {
             return false;
@@ -64,90 +62,90 @@ mod tests {
     #[test]
     fn test_example_1() {
         let result = check_level_move(vec![7, 6, 4, 2, 1]);
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn test_example_2() {
         let result = check_level_move(vec![1, 2, 7, 8, 9]);
-        assert_eq!(result, false);
+        assert!(!result);
     }
 
     #[test]
     fn test_example_3() {
         let result = check_level_move(vec![9, 7, 6, 2, 1]);
-        assert_eq!(result, false);
+        assert!(!result);
     }
 
     #[test]
     fn test_example_4() {
         let result = check_level_move(vec![1, 3, 2, 4, 5]);
-        assert_eq!(result, false);
+        assert!(!result);
     }
 
     #[test]
     fn test_example_5() {
         let result = check_level_move(vec![8, 6, 4, 4, 1]);
-        assert_eq!(result, false);
+        assert!(!result);
     }
 
     #[test]
     fn test_example_6() {
         let result = check_level_move(vec![1, 3, 6, 7, 9]);
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn test_example_1_skip() {
         let result = check_level_move_skip(vec![7, 6, 4, 2, 1]);
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn test_example_2_skip() {
         let result = check_level_move_skip(vec![1, 2, 7, 8, 9]);
-        assert_eq!(result, false);
+        assert!(!result);
     }
 
     #[test]
     fn test_example_3_skip() {
         let result = check_level_move_skip(vec![9, 7, 6, 2, 1]);
-        assert_eq!(result, false);
+        assert!(!result);
     }
 
     #[test]
     fn test_example_4_skip() {
         let result = check_level_move_skip(vec![1, 3, 2, 4, 5]);
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn test_example_5_skip() {
         let result = check_level_move_skip(vec![8, 6, 4, 4, 1]);
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn test_example_6_skip() {
         let result = check_level_move_skip(vec![1, 3, 6, 7, 9]);
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn test_example_7_skip() {
         let result = check_level_move_skip(vec![4, 6, 3, 2, 1]);
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn test_example_8_skip() {
         let result = check_level_move_skip(vec![4, 6, 5, 3, 1]);
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn test_example_9_skip() {
         let result = check_level_move_skip(vec![4, 11, 7]);
-        assert_eq!(result, true);
+        assert!(result);
     }
 }

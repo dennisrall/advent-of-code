@@ -27,7 +27,7 @@ impl BoundVector2D {
         BoundVector2D::new(x, y, bound_x, bound_y)
     }
 
-    pub fn to_sized(&self) -> Option<(isize, isize)> {
+    pub fn to_sized(self) -> Option<(isize, isize)> {
         Some((self.x.try_into().ok()?, self.y.try_into().ok()?))
     }
 
@@ -80,8 +80,8 @@ impl Sub<(isize, isize)> for BoundVector2D {
 
     fn sub(self, other: (isize, isize)) -> Option<Self> {
         BoundVector2D::new(
-            self.x.checked_add_signed(-1 * other.0)?,
-            self.y.checked_add_signed(-1 * other.1)?,
+            self.x.checked_add_signed(-other.0)?,
+            self.y.checked_add_signed(-other.1)?,
             self.bound_x,
             self.bound_y,
         )
