@@ -65,8 +65,7 @@ fn calculate_fence_price(grid: &CharGrid) -> usize {
             match indices_to_check
                 .iter()
                 .rev()
-                .filter(|i| !processed_indices.contains(i))
-                .next()
+                .find(|i| !processed_indices.contains(i))
             {
                 Some(i) => idx = *i,
                 None => break,
@@ -78,29 +77,29 @@ fn calculate_fence_price(grid: &CharGrid) -> usize {
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
 enum Direction {
-    RIGHT,
-    DOWN,
-    LEFT,
-    UP,
+    Right,
+    Down,
+    Left,
+    Up,
 }
 
 impl Direction {
     fn to_vector(&self) -> (isize, isize) {
         match self {
-            Self::RIGHT => (1, 0),
-            Self::DOWN => (0, 1),
-            Self::LEFT => (-1, 0),
-            Self::UP => (0, -1),
+            Self::Right => (1, 0),
+            Self::Down => (0, 1),
+            Self::Left => (-1, 0),
+            Self::Up => (0, -1),
         }
     }
 }
 
 fn calculate_fence_price_2(grid: &CharGrid) -> usize {
     let directions = [
-        Direction::RIGHT,
-        Direction::DOWN,
-        Direction::LEFT,
-        Direction::UP,
+        Direction::Right,
+        Direction::Down,
+        Direction::Left,
+        Direction::Up,
     ];
 
     let mut indices_to_check: Vec<BoundVector2D> = Vec::new();
@@ -150,8 +149,7 @@ fn calculate_fence_price_2(grid: &CharGrid) -> usize {
             match indices_to_check
                 .iter()
                 .rev()
-                .filter(|i| !processed_indices.contains(i))
-                .next()
+                .find(|i| !processed_indices.contains(i))
             {
                 Some(i) => idx = *i,
                 None => break,
@@ -191,14 +189,12 @@ fn calculate_sides(fences: &HashSet<(BoundVector2D, Direction)>) -> usize {
 
         if let Some(i) = fences_same_side
             .iter()
-            .filter(|i| !processed_fences.contains(i))
-            .next()
+            .find(|i| !processed_fences.contains(i))
         {
             cur_item = i.clone();
         } else if let Some(i) = fences
             .iter()
-            .filter(|i| !processed_fences.contains(i))
-            .next()
+            .find(|i| !processed_fences.contains(i))
         {
             sides += 1;
             cur_item = i.clone();
@@ -211,10 +207,10 @@ fn calculate_sides(fences: &HashSet<(BoundVector2D, Direction)>) -> usize {
 
 fn get_neighbour_direction(dir: &Direction) -> Direction {
     match dir {
-        Direction::RIGHT => Direction::DOWN,
-        Direction::DOWN => Direction::LEFT,
-        Direction::LEFT => Direction::UP,
-        Direction::UP => Direction::RIGHT,
+        Direction::Right => Direction::Down,
+        Direction::Down => Direction::Left,
+        Direction::Left => Direction::Up,
+        Direction::Up => Direction::Right,
     }
 }
 
@@ -416,10 +412,10 @@ AA",
     fn test_calculate_sides_1() {
         let vec = BoundVector2D::new(0, 0, 1, 1).unwrap();
         let fences = HashSet::from([
-            (vec.clone(), Direction::RIGHT),
-            (vec.clone(), Direction::DOWN),
-            (vec.clone(), Direction::LEFT),
-            (vec.clone(), Direction::UP),
+            (vec, Direction::Right),
+            (vec, Direction::Down),
+            (vec, Direction::Left),
+            (vec, Direction::Up),
         ]);
 
         let result = calculate_sides(&fences);
@@ -431,12 +427,12 @@ AA",
         let vec1 = BoundVector2D::new(0, 0, 2, 2).unwrap();
         let vec2 = BoundVector2D::new(1, 0, 2, 2).unwrap();
         let fences = HashSet::from([
-            (vec1.clone(), Direction::LEFT),
-            (vec1.clone(), Direction::UP),
-            (vec1.clone(), Direction::DOWN),
-            (vec2.clone(), Direction::RIGHT),
-            (vec2.clone(), Direction::DOWN),
-            (vec2.clone(), Direction::UP),
+            (vec1, Direction::Left),
+            (vec1, Direction::Up),
+            (vec1, Direction::Down),
+            (vec2, Direction::Right),
+            (vec2, Direction::Down),
+            (vec2, Direction::Up),
         ]);
 
         let result = calculate_sides(&fences);
@@ -449,14 +445,14 @@ AA",
         let vec2 = BoundVector2D::new(0, 1, 2, 2).unwrap();
         let vec3 = BoundVector2D::new(1, 1, 2, 2).unwrap();
         let fences = HashSet::from([
-            (vec1.clone(), Direction::LEFT),
-            (vec1.clone(), Direction::UP),
-            (vec1.clone(), Direction::RIGHT),
-            (vec2.clone(), Direction::LEFT),
-            (vec2.clone(), Direction::DOWN),
-            (vec3.clone(), Direction::UP),
-            (vec3.clone(), Direction::RIGHT),
-            (vec3.clone(), Direction::DOWN),
+            (vec1, Direction::Left),
+            (vec1, Direction::Up),
+            (vec1, Direction::Right),
+            (vec2, Direction::Left),
+            (vec2, Direction::Down),
+            (vec3, Direction::Up),
+            (vec3, Direction::Right),
+            (vec3, Direction::Down),
         ]);
 
         let result = calculate_sides(&fences);
