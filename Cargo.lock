@@ -278,6 +278,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "puzzle_13"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
